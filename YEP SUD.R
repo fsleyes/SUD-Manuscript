@@ -234,6 +234,11 @@ for (num in nums) {
       TRUE ~ NA_real_
       )
     ) 
+  
+  colname_totDrinks <- paste0("alc_drinks_per_month_T", num)
+  
+  df <- df %>%
+    mutate(!!colname_totDrinks := !!sym(coldrinks1) * !!sym(coldays1))
 }
 
 df <- df %>% select(ID, )
