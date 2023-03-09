@@ -28,6 +28,21 @@ for (i in LSIfiles){
   assign(gsub(".sav", "", i), LSIdf)
 }
 
+#rename id into ID
+dumbList <- list(LSIT1, LSIT3, LSIT5, LSIT7, LSIT9)
+dumbList <- lapply(dumbList, function(df) {
+  df <- df %>% rename(ID = id)
+})
+
+LSIT1 <- LSIT1 %>% rename(ID = id)
+LSIT3 <- LSIT3 %>% rename(ID = id)
+LSIT5 <- LSIT5 %>% rename(ID = id)
+LSIT7 <- LSIT7 %>% rename(ID = id)
+LSIT9 <- LSIT9 %>% rename(ID = id)
+
+
+
+
 #lsi is broken into subscales
 #allison's paper used three models: total, interpersonal, and non-interpersonal
 #total was created by averaging across all relevant domains
@@ -256,9 +271,34 @@ for (num in nums) {
 alcData <- df %>% select(ID, alc_use_T1:alc_drinks_per_month_T19)
 #now need to join with the stress data in the lsi df
 
+#joining all LSI timepoints
 LSIlist <- list(LSIT1, LSIT3, LSIT5, LSIT7, 
                 LSIT9, LSIT11, LSIT13, LSIT15, 
                 LSIT17, LSIT19)
+allLSIts <- Reduce(function(x, y) merge(x, y, by = "ID", all = TRUE),
+                   LSIlist)
+#merge with the SCID dataset for the IDs
+df <- merge(x = allLSIts, y = SCIDfiltered, by = "ID")
+df <- df[, !duplicated(names(df))]
+df <- df %>%
+  select(!(contains("specifier")))
 
 
+#calculating subscales for each timepoint
+lsiNums <- c(1, 3, 5, 7, 9, 11, 13, 15, 17, 19)
+for (num in lsiNums){
+  avgname <- paste0("LSI_avg_t", num)
+  intname <- paste0("LSI_int_tot_t", num)
+  nonintname <- paste0("LSI_nonint_tot_t", num)
+  
+  friendship <- paste0("lsi_friendship_t", num)
+  famhealth <- paste0("lsi_family_health_t", num)
+  
+  df <- df %>%
+    rowwise() %>%
+    mutate(!!avgname := mean(c_across(!!sym(friendship):!!sym(famhealth))))
+  
+  
+  
+}
 
