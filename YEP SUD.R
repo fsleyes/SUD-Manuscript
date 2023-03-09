@@ -203,7 +203,8 @@ nums <- c(1, 3, 5, 7, 9, 11, 13 ,15 ,17, 19)
 
 
 # THIS FUNCTION CREATES A NEW COLUMN FOR EACH TIMEPOINT WITH THEIR
-# CURRENTLY ASSESSED PATTERN OF DRINKING
+# CURRENTLY ASSESSED PATTERN OF DRINKING, SPECIFICALLY
+# DRINKS PER DAY (alc_use_T) AND THEN DAYS PER MONTH (alc_use_days_T)
 for (num in nums) {
   colname <- paste0("alc_use_T", num)
   colpattern1 <- paste0("alc_pattern1_current_t", num)
@@ -219,4 +220,20 @@ for (num in nums) {
       !!sym(colpattern3) == 1 ~ !!sym(coldrinks3),
       TRUE ~ NA_real_
     ))
+  
+  colname_days <- paste0("alc_use_days_T", num)
+  coldays1 <- paste0("alc_days_per_month_pattern1_t", num)
+  coldays2 <- paste0("alc_days_per_month_pattern2_t", num)
+  coldays3 <- paste0("alc_days_per_month_pattern3_t", num)
+  
+  df <- df %>%
+    mutate(!!colname_days := case_when(
+      !!sym(colpattern1) == 1 ~ !!sym(coldays1),
+      !!sym(colpattern2) == 1 ~ !!sym(coldays2),
+      !!sym(colpattern3) == 1 ~ !!sym(coldays3),
+      TRUE ~ NA_real_
+      )
+    ) 
 }
+
+df <- df %>% select(ID, )
