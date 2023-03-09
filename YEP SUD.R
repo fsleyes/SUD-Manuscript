@@ -4,7 +4,7 @@ library(haven)
 
 demographics <- read_sav("demographics both sites all cohorts.sav")
 sud <- read_sav("Substance Abuse_All Cohorts_Both Sites_T1.sav")
-lsiRaw <- read_sav("Chronic LSI Time 1_All cohorts_ both sites.sav")
+lsiRaw <- read_sav("LSIT1.sav")
 SCIDs <- read_sav("SCID Consensus All Times-Both sites_ All cohorts.sav")
 
 
@@ -293,12 +293,19 @@ for (num in lsiNums){
   
   friendship <- paste0("lsi_friendship_t", num)
   famhealth <- paste0("lsi_family_health_t", num)
+  romantic <- paste0("lsi_romantic_t", num)
+  social <- paste0("lsi_social_t", num)
+  family <- paste0("lsi_family_t", num)
   
   df <- df %>%
     rowwise() %>%
     mutate(!!avgname := mean(c_across(!!sym(friendship):!!sym(famhealth))))
   
-  
-  
 }
+#can't figure out how to do the subscales in this loop but won't look at that now
 
+
+lsiData <- df %>% select(ID, LSI_avg_t1:LSI_avg_t19)
+
+
+fullData <- merge(x = alcData, y = lsiData, by = "ID")
