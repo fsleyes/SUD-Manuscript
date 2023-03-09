@@ -4,7 +4,7 @@ library(haven)
 
 demographics <- read_sav("demographics both sites all cohorts.sav")
 sud <- read_sav("Substance Abuse_All Cohorts_Both Sites_T1.sav")
-lsi <- read_sav("Chronic LSI Time 1_All cohorts_ both sites.sav")
+lsiRaw <- read_sav("Chronic LSI Time 1_All cohorts_ both sites.sav")
 SCIDs <- read_sav("SCID Consensus All Times-Both sites_ All cohorts.sav")
 
 
@@ -17,13 +17,24 @@ for (f in files){
   assign(gsub(".sav", "", f), df)
 }
 
+#loading all chronic LSI files
+LSIfiles <- c("LSIT1.sav", "LSIT3.sav", "LSIT5.sav", 
+              "LSIT7.sav", "LSIT9.sav", "LSIT11.sav", 
+              "LSIT13.sav", "LSIT15.sav", "LSIT17.sav", 
+              "LSIT19.sav")
+
+for (i in LSIfiles){
+  LSIdf <- read_sav(i)
+  assign(gsub(".sav", "", i), LSIdf)
+}
+
 #lsi is broken into subscales
 #allison's paper used three models: total, interpersonal, and non-interpersonal
 #total was created by averaging across all relevant domains
 
 #clean the lsi first
 #create a total by averaging across all items
-lsi <- lsi %>% 
+lsi <- lsiRaw %>% 
   select(!(contains("specifier"))) %>%
   rowwise() %>%
   mutate(tot_avg = mean(c_across(lsi_friendship_t1:lsi_family_health_t1))) %>%
@@ -241,4 +252,13 @@ for (num in nums) {
     mutate(!!colname_totDrinks := !!sym(coldrinks1) * !!sym(coldays1))
 }
 
-df <- df %>% select(ID, )
+#alcData is the df with the alcohol use data
+alcData <- df %>% select(ID, alc_use_T1:alc_drinks_per_month_T19)
+#now need to join with the stress data in the lsi df
+
+LSIlist <- list(LSIT1, LSIT3, LSIT5, LSIT7, 
+                LSIT9, LSIT11, LSIT13, LSIT15, 
+                LSIT17, LSIT19)
+
+
+
