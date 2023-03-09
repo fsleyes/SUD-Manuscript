@@ -322,3 +322,5 @@ test <- read_sav("Qs.sav") %>% select(contains("bg5"))
 fullData <- Reduce(function(x, y) merge(x, y, by = "ID"), dataList)
 fullData <- fullData %>% select(ID, gender, LSI_avg_t1:ncol(.))
 
+
+write.csv(fullData, file = "fullData.csv")
