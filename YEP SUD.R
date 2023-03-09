@@ -1,4 +1,4 @@
-setwd("C:/Users/Work/Documents/YEP SUD Manuscript")
+
 library(tidyverse)
 library(haven)
 
@@ -9,9 +9,9 @@ SCIDs <- read_sav("SCID Consensus All Times-Both sites_ All cohorts.sav")
 
 
 #loading all the files
-files <- c("SUD T1.sav", "SUD T3.sav", "SUD T5.sav", "SUD T7.sav",
-           "SUD T9.sav", "SUD T11.sav", "SUD T13.sav", "SUD T15.sav",
-           "SUD T17.sav", "SUD T19.sav")
+files <- c("SUDT1.sav", "SUDT3.sav", "SUDT5.sav", "SUDT7.sav",
+           "SUDT9.sav", "SUDT11.sav", "SUDT13.sav", "SUDT15.sav",
+           "SUDT17.sav", "SUDT19.sav")
 for (f in files){
   df <- read_sav(f)
   assign(gsub(".sav", "", f), df)
@@ -70,6 +70,7 @@ test <- SCIDs %>% select(contains("alab_cur_csr")) %>%
 
 
 #filtering to anyone who has a CSR at ANY point for alc abuse
+#going to want to use this for the dataset
 anyCSRalab <- SCIDs %>% filter(alab_cur_csr_t1 != 0 &
                            !is.na(alab_cur_csr_t1) |
                            alab_cur_csr_t5 != 0 & 
@@ -152,3 +153,46 @@ alabt19 <- SCIDs %>% count(alab_cur_csr_t19) %>%
 testList <- list(alabt1, alabt5, alabt7, alabt9, alabT11, alabt13,
                  alabt15, alabt17, alabt19)
 testList <- testList %>% reduce(full_join, by = "CSR")
+
+
+
+#actually cleaning the data
+
+SCIDfiltered <- SCIDs %>%
+  filter(alab_cur_csr_t1 != 0 &
+           !is.na(alab_cur_csr_t1) |
+           alab_cur_csr_t5 != 0 & 
+           !is.na(alab_cur_csr_t5) |
+           alab_cur_csr_t7 != 0 &
+           !is.na(alab_cur_csr_t7) |
+           alab_cur_csr_t9 != 0 &
+           !is.na(alab_cur_csr_t9) |
+           alab_cur_csr_T11 != 0 &
+           !is.na(alab_cur_csr_T11) |
+           alab_cur_csr_t13 != 0 &
+           !is.na(alab_cur_csr_t13) |
+           alab_cur_csr_t15 != 0 &
+           !is.na(alab_cur_csr_t15) |
+           alab_cur_csr_t17 != 0 &
+           !is.na(alab_cur_csr_t17) |
+           alab_cur_csr_t19 != 0 &
+           !is.na(alab_cur_csr_t19)) %>%
+  select(id,
+         alab_cur_csr_t1, alab_cur_csr_t5, alab_cur_csr_t7,
+         alab_cur_csr_t9, alab_cur_csr_T11, alab_cur_csr_t13, 
+         alab_cur_csr_t15, alab_cur_csr_t17, alab_cur_csr_t19) %>%
+  rename(ID = id)
+#do we want the CSRs?
+
+#joining all of the Ts together
+SUDdfs <- list(SUDT1, SUDT3, SUDT5, SUDT7,
+               SUDT9, SUDT11, SUDT13, SUDT15,
+               SUDT17, SUDT19)
+
+allTs <- Reduce(function(x, y) merge(x, y, by = "ID", all = TRUE),
+                SUDdfs)
+
+#merging all the Ts with the IDs from SCIDs
+#selecting columns that refer to alcohol abuse
+df <- merge(x = allTs, y = SCIDfiltered, by = "ID") %>%
+  select(ID, contains("alc"))
