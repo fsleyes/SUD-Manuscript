@@ -198,28 +198,9 @@ df <- merge(x = allTs, y = SCIDfiltered, by = "ID") %>%
   select(ID, contains("alc_drinks_per_day"), 
          contains("alc_days_per_month"), contains("current"))
 
-nums <- c(1)
 
+nums <- c(1, 3, 5, 7, 9, 11, 13 ,15 ,17, 19)
 
-
-for (num in nums) {
-  
-  newcolname <- paste0("alc_use_T", num)
-  colpattern <- paste0("alc_pattern1_current_t", num)
-  coldrinks <- paste0("alc_drinks_per_day_pattern1_t", num)
-  
-  df <- df %>%
-    mutate(!!colname := case_when(
-      !!sym(colpattern) == 1 ~ !!(sym(coldrinks), TRUE ~ NA_real_)
-    ))
-  
-  
-  
-  # df <- df %>% mutate(
-  #   !!paste0("alc_use_T", num) := case_when(
-  #     !!sym(paste0("alc_pattern1_current_t", num)) == 1 ~ !!sym("alc_drinks_per_day_pattern1_t", num))
-  #   )
-}
 
 # THIS FUNCTION CREATES A NEW COLUMN FOR EACH TIMEPOINT WITH THEIR
 # CURRENTLY ASSESSED PATTERN OF DRINKING
@@ -239,11 +220,3 @@ for (num in nums) {
       TRUE ~ NA_real_
     ))
 }
-
-
-sud <- sud %>%
-  mutate(alc_use = case_when(
-    alc_pattern1_current_t1 == 1 ~ alc_drinks_per_day_pattern1_t1,
-    alc_pattern2_current_t1 == 1 ~ alc_drinks_per_day_pattern2_t1,
-    alc_pattern3_current_t1 == 1 ~ alc_drinks_per_day_pattern3_t1
-  ))
