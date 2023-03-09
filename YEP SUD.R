@@ -307,5 +307,18 @@ for (num in lsiNums){
 
 lsiData <- df %>% select(ID, LSI_avg_t1:LSI_avg_t19)
 
+#getting gender
+gender <- demographics %>% 
+  select(id, gender) %>%
+  rename(ID = id)
 
-fullData <- merge(x = alcData, y = lsiData, by = "ID")
+
+
+dataList <- list(lsiData, alcData, gender)
+#don't know where neuroticism data is??
+test <- read_sav("Qs.sav") %>% select(contains("bg5"))
+#looks like big 5 Qs here but no subscale scoring? only 39 items?
+
+fullData <- Reduce(function(x, y) merge(x, y, by = "ID"), dataList)
+fullData <- fullData %>% select(ID, gender, LSI_avg_t1:ncol(.))
+
