@@ -195,4 +195,55 @@ allTs <- Reduce(function(x, y) merge(x, y, by = "ID", all = TRUE),
 #merging all the Ts with the IDs from SCIDs
 #selecting columns that refer to alcohol abuse
 df <- merge(x = allTs, y = SCIDfiltered, by = "ID") %>%
-  select(ID, contains("alc"))
+  select(ID, contains("alc_drinks_per_day"), 
+         contains("alc_days_per_month"), contains("current"))
+
+nums <- c(1)
+
+
+
+for (num in nums) {
+  
+  newcolname <- paste0("alc_use_T", num)
+  colpattern <- paste0("alc_pattern1_current_t", num)
+  coldrinks <- paste0("alc_drinks_per_day_pattern1_t", num)
+  
+  df <- df %>%
+    mutate(!!colname := case_when(
+      !!sym(colpattern) == 1 ~ !!(sym(coldrinks), TRUE ~ NA_real_)
+    ))
+  
+  
+  
+  # df <- df %>% mutate(
+  #   !!paste0("alc_use_T", num) := case_when(
+  #     !!sym(paste0("alc_pattern1_current_t", num)) == 1 ~ !!sym("alc_drinks_per_day_pattern1_t", num))
+  #   )
+}
+
+# THIS FUNCTION CREATES A NEW COLUMN FOR EACH TIMEPOINT WITH THEIR
+# CURRENTLY ASSESSED PATTERN OF DRINKING
+for (num in nums) {
+  colname <- paste0("alc_use_T", num)
+  colpattern1 <- paste0("alc_pattern1_current_t", num)
+  colpattern2 <- paste0("alc_pattern2_current_t", num)
+  colpattern3 <- paste0("alc_pattern3_current_t", num)
+  coldrinks1 <- paste0("alc_drinks_per_day_pattern1_t", num)
+  coldrinks2 <- paste0("alc_drinks_per_day_pattern2_t", num)
+  coldrinks3 <- paste0("alc_drinks_per_day_pattern3_t", num)
+  df <- df %>%
+    mutate(!!colname := case_when(
+      !!sym(colpattern1) == 1 ~ !!sym(coldrinks1),
+      !!sym(colpattern2) == 1 ~ !!sym(coldrinks2),
+      !!sym(colpattern3) == 1 ~ !!sym(coldrinks3),
+      TRUE ~ NA_real_
+    ))
+}
+
+
+sud <- sud %>%
+  mutate(alc_use = case_when(
+    alc_pattern1_current_t1 == 1 ~ alc_drinks_per_day_pattern1_t1,
+    alc_pattern2_current_t1 == 1 ~ alc_drinks_per_day_pattern2_t1,
+    alc_pattern3_current_t1 == 1 ~ alc_drinks_per_day_pattern3_t1
+  ))
